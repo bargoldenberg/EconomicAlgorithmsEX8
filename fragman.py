@@ -1,5 +1,7 @@
 INCREMRENT_BALANCE_AMOUNT = 0.08
 
+# IMPLEMENTED BY: BAR GOLDENBERG
+
 def choose_item(costs, new_costs, count_player, balances):
     amount_to_subtract = 0
     for item in new_costs:
