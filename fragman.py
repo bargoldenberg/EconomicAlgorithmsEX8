@@ -10,24 +10,31 @@ def choose_item(costs, new_costs, count_player, balances):
             amount_to_subtract = costs[item] / count_player[item]
             for i in range(len(votes)):
                 if item in votes[i]:
-                    balances[i] -= amount_to_subtract
-            break
+                    if balances[i] < amount_to_subtract:
+                        balances[i] = 0
+                        amount_to_subtract += (amount_to_subtract - balances[i])
+                    else:
+                        balances[i] -= amount_to_subtract
+            return True
+    return False
     
 def elect_next_budget_item(votes: list[set[str]], balances: list[float], costs: dict[str, float]):
-    for i in range(len(balances)):
-        balances[i] += INCREMRENT_BALANCE_AMOUNT
-    new_costs = costs.copy()
-    count_player = {}
-    for i in range(len(votes)):
-        for item in votes[i]:
-            new_costs[item] -= balances[i]
-            if item not in count_player:
-                count_player[item] = 1
-            else:
-                count_player[item] += 1
-    choose_item(costs, new_costs, count_player, balances)
-    for i in range(len(balances)):
-        print("Citizen", i+1, "has", balances[i], "remaining balance.")
+    found_item = False
+    while not found_item:
+        new_costs = costs.copy() 
+        for i in range(len(balances)):
+            balances[i] += INCREMRENT_BALANCE_AMOUNT
+        count_player = {}
+        for i in range(len(votes)):
+            for item in votes[i]:
+                new_costs[item] -= balances[i]
+                if item not in count_player:
+                    count_player[item] = 1
+                else:
+                    count_player[item] += 1
+        found_item = choose_item(costs, new_costs, count_player, balances)
+        for i in range(len(balances)):
+            print("Citizen", i+1, "has", balances[i], "remaining balance.")
 
 
 votes = [{"Park in street X", "Fix road X"}, {"Park in street X"}]
