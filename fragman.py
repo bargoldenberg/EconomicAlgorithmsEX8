@@ -2,12 +2,12 @@ INCREMRENT_BALANCE_AMOUNT = 0.08
 
 # IMPLEMENTED BY: BAR GOLDENBERG
 
-def choose_item(costs, new_costs, count_player, balances):
+def choose_item(costs, new_costs, vote_sum, balances):
     amount_to_subtract = 0
     for item in new_costs:
         if new_costs[item] <= 0:
             print("After adding", INCREMRENT_BALANCE_AMOUNT, "to each citizen", item, "is chosen.")
-            amount_to_subtract = costs[item] / count_player[item]
+            amount_to_subtract = costs[item] / vote_sum[item]
             for i in range(len(votes)):
                 if item in votes[i]:
                     if balances[i] < amount_to_subtract:
@@ -17,24 +17,27 @@ def choose_item(costs, new_costs, count_player, balances):
                         balances[i] -= amount_to_subtract
             return True
     return False
+
+def increment_balances(balances):
+    for i in range(len(balances)):
+            balances[i] += INCREMRENT_BALANCE_AMOUNT
+
+def print_balances(balances):
+        for i in range(len(balances)):
+            print("Citizen", i+1, "has", balances[i], "remaining balance.")
     
 def elect_next_budget_item(votes: list[set[str]], balances: list[float], costs: dict[str, float]):
     found_item = False
     while not found_item:
         new_costs = costs.copy() 
-        for i in range(len(balances)):
-            balances[i] += INCREMRENT_BALANCE_AMOUNT
-        count_player = {}
+        vote_sum = {}
+        increment_balances(balances)
         for i in range(len(votes)):
             for item in votes[i]:
                 new_costs[item] -= balances[i]
-                if item not in count_player:
-                    count_player[item] = 1
-                else:
-                    count_player[item] += 1
-        found_item = choose_item(costs, new_costs, count_player, balances)
-        for i in range(len(balances)):
-            print("Citizen", i+1, "has", balances[i], "remaining balance.")
+                vote_sum[item] = 1 if item not in vote_sum else vote_sum[item] + 1
+        found_item = choose_item(costs, new_costs, vote_sum, balances)
+        print_balances(balances)
 
 
 votes = [{"Park in street X", "Fix road X"}, {"Park in street X"}]
